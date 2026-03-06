@@ -40,6 +40,9 @@ For Deno server running in Supabase Edge Functions only. Doesn't make sense to r
 
 ### Examples
 
+> [!NOTE]
+> 📢 For a complete practical example, see [examples/basic.ts](/examples/basic.ts) which demonstrates a typical real-world usage with CORS, HTTP method validation, and body validation.
+
 #### Simple usage
 
 ```typescript
@@ -216,7 +219,7 @@ Full API documentation is available on [JSR](https://jsr.io/@tmjeee/deno-middlew
 
 ### Prerequisites
 
-- [Deno](https://deno.land/) 1.40 or higher
+- [Deno](https://deno.land/) or higher
 
 ### Commands
 
