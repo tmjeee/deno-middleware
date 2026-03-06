@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# Pre-commit hook for Deno project
+# Runs formatting, linting, and type checking before allowing commit
+#
+
+echo "🔍 Running pre-commit checks..."
+
+# Run formatter check
+echo "📝 Checking code formatting..."
+if ! deno fmt --check; then
+    echo "❌ Formatting check failed!"
+    echo "💡 Run 'deno fmt' to fix formatting issues"
+    exit 1
+fi
+
+# Run linter
+echo "🔎 Running linter..."
+if ! deno lint; then
+    echo "❌ Linting failed!"
+    exit 1
+fi
+
+# Run type check
+echo "🔧 Running type check..."
+if ! deno task check; then
+    echo "❌ Type check failed!"
+    exit 1
+fi
+
+# Run tests
+echo "🧪 Running tests..."
+if ! deno task test; then
+    echo "❌ Tests failed!"
+    exit 1
+fi
+
+echo "✅ All pre-commit checks passed!"
+exit 0

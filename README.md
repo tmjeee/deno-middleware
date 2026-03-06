@@ -221,6 +221,16 @@ Full API documentation is available on [JSR](https://jsr.io/@tmjeee/deno-middlew
 
 - [Deno](https://deno.land/) or higher
 
+### Setup
+
+After cloning the repository, install Git hooks:
+
+```bash
+./scripts/setup-hooks.sh
+```
+
+This sets up pre-commit hooks to automatically check formatting, linting, types, and tests before each commit. See [docs/git-hooks.md](docs/git-hooks.md) for more details.
+
 ### Commands
 
 ```bash
