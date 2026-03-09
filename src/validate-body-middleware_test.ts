@@ -2,8 +2,8 @@ import { assertEquals, assertExists } from "@std/assert";
 import { Type } from "typebox";
 import { applyMiddleware } from "./middleware.ts";
 import {
-  validateBodyMiddlewareFn,
   ValidateBodyMiddlewareContext,
+  validateBodyMiddlewareFn,
 } from "./validate-body-middleware.ts";
 
 Deno.test("validateBodyMiddlewareFn - accepts valid body", async () => {

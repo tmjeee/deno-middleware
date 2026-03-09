@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# Fast pre-commit hook - only runs formatting
+# Runs formatting check before allowing commit
+#
+
+echo "🔍 Running pre-commit checks..."
+
+# Run formatter check
+echo "📝 Checking code formatting..."
+if ! deno fmt --check; then
+    echo "❌ Formatting check failed!"
+    echo "💡 Run 'deno fmt' to fix formatting issues"
+    exit 1
+fi
+
+echo "✅ Formatting check passed!"
+exit 0
