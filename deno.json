@@ -1,6 +1,6 @@
 {
   "name": "@tmjeee/deno-middleware",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "exports": {
     ".": "./mod.ts"
   },
@@ -45,6 +45,7 @@
     "typebox": "npm:typebox@1.1.4",
     "typebox/schema": "npm:typebox@1.1.4/schema",
     "typebox/error": "npm:typebox@1.1.4/error",
-    "typebox/value": "npm:typebox@1.1.4/value"
+    "typebox/value": "npm:typebox@1.1.4/value",
+    "zod": "npm:zod@^4.4.3"
   }
 }

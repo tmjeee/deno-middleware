@@ -27,7 +27,7 @@ Or add to your `deno.json`:
 ```json
 {
   "imports": {
-    "@tmjeee/deno-middleware": "jsr:@tmjeee/deno-middleware@^0.1.0"
+    "@tmjeee/deno-middleware": "jsr:@tmjeee/deno-middleware@^0.1.2"
   }
 }
 ```
@@ -85,17 +85,20 @@ Deno.serve(
 import { applyMiddleware } from "@tmjeee/deno-middleware";
 import { corsMiddlewareFn } from "@tmjeee/deno-middleware";
 import { httpMethodMiddlewareFn } from "@tmjeee/deno-middleware";
-import { Type } from "typebox";
-import { ValidateBodyMiddlewareContext, validateBodyMiddlewareFn } from "@tmjeee/deno-middleware";
+import z from "npm:zod";
+import {
+  ZodValidateBodyMiddlewareContext,
+  zodValidateBodyMiddlewareFn,
+} from "@tmjeee/deno-middleware";
 
 interface Body {
   name: string;
   age: number;
 }
 
-const BodyType = Type.Object({
-  name: Type.String(),
-  age: Type.Number(),
+const BodyType = z.object({
+  name: z.string(),
+  age: z.number(),
 });
 
 Deno.serve(
@@ -110,15 +113,15 @@ Deno.serve(
     middlewares: [
       corsMiddlewareFn(),
       httpMethodMiddlewareFn("POST"),
-      validateBodyMiddlewareFn(BodyType),
+      zodValidateBodyMiddlewareFn(BodyType),
     ],
     handler: (_req: Request, ctx: unknown) => {
-      // `ValidateBodyMiddlewareContext` is injected by middleware function - validateBodyMiddlewareFn(...)
+      // `ZodValidateBodyMiddlewareContext` is injected by middleware function - zodValidateBodyMiddlewareFn(...)
       const {
         body,
-        errors: _errors, // validation errors
+        error: _error, // validation error (z.ZodError)
         result: _result, // true or false depending on validation success
-      } = (ctx as ValidateBodyMiddlewareContext<Body>).validation;
+      } = (ctx as ZodValidateBodyMiddlewareContext<Body>).validation;
 
       const name = body.name;
       const age = body.age;
@@ -135,6 +138,69 @@ Deno.serve(
   }),
 );
 ```
+
+#### Using Zod for body validation
+
+If you prefer Zod over TypeBox for schema validation, use the Zod-specific middleware:
+
+```typescript
+import { applyMiddleware } from "@tmjeee/deno-middleware";
+import { corsMiddlewareFn } from "@tmjeee/deno-middleware";
+import { httpMethodMiddlewareFn } from "@tmjeee/deno-middleware";
+import { z } from "zod";
+import {
+  ZodValidateBodyMiddlewareContext,
+  zodValidateBodyMiddlewareFn,
+} from "@tmjeee/deno-middleware";
+
+const BodySchema = z.object({
+  name: z.string().min(1),
+  age: z.number().min(0),
+});
+
+type Body = z.infer<typeof BodySchema>;
+
+Deno.serve(
+  {
+    port: 3000,
+    hostname: "0.0.0.0",
+    onListen({ port, hostname }) {
+      console.log(`Server is running on http://${hostname}:${port}`);
+    },
+  },
+  applyMiddleware({
+    middlewares: [
+      corsMiddlewareFn(),
+      httpMethodMiddlewareFn("POST"),
+      zodValidateBodyMiddlewareFn<Body>(BodySchema),
+    ],
+    handler: (_req: Request, ctx: unknown) => {
+      const { validation } = ctx as ZodValidateBodyMiddlewareContext<Body>;
+
+      if (!validation.success) {
+        return new Response(
+          JSON.stringify({ success: false, errors: validation.error.issues }),
+          { status: 400, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      const { name, age } = validation.data;
+
+      return new Response(
+        JSON.stringify({ success: true, message: `Hello, ${name}! You are ${age} years old.` }),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+    },
+  }),
+);
+```
+
+> [!TIP]
+> The context uses a discriminated union with `validation.success`. When `true`, you get `validation.data` (typed). When `false`, you get `validation.error` (a `ZodError`) and `validation.input` (the raw body).
 
 ### Writing a `MiddlewareFn`
 
@@ -205,11 +271,12 @@ const handlerWithContext: HandlerFn = (_req, ctx) => {
 
 ### Built-in `MiddlewareFn`s
 
-| Middleware                         | Description                                                         | Usage                                                            |
-| ---------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `corsMiddlewareFn()`               | Handles CORS preflight requests and adds CORS headers               | `corsMiddlewareFn()`                                             |
-| `httpMethodMiddlewareFn(method)`   | Validates the HTTP method (GET or POST), returns 405 if not allowed | `httpMethodMiddlewareFn("POST")`                                 |
-| `validateBodyMiddlewareFn(schema)` | Validates the JSON request body against a TypeBox schema            | `validateBodyMiddlewareFn(Type.Object({ name: Type.String() }))` |
+| Middleware                            | Description                                                         | Usage                                                               |
+| ------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `corsMiddlewareFn()`                  | Handles CORS preflight requests and adds CORS headers               | `corsMiddlewareFn()`                                                |
+| `httpMethodMiddlewareFn(method)`      | Validates the HTTP method (GET or POST), returns 405 if not allowed | `httpMethodMiddlewareFn("POST")`                                    |
+| `validateBodyMiddlewareFn(schema)`    | Validates JSON body using a TypeBox schema                          | `validateBodyMiddlewareFn(Type.Object({ name: Type.String() }))`    |
+| `zodValidateBodyMiddlewareFn(schema)` | Validates JSON body using a Zod schema                              | `zodValidateBodyMiddlewareFn<Body>(z.object({ name: z.string() }))` |
 
 ## API Documentation
 

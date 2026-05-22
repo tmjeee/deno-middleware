@@ -50,6 +50,7 @@ This is a Deno middleware library for building composable HTTP request handlers 
 ### Dependencies
 
 - `@std/assert`: Deno standard assertions for testing
+- `zod`: Schema validation library
 - `typebox`: Schema validation library (imported from esm.sh)
   - `typebox/schema`: Schema compilation
   - `typebox/error`: Validation error types
