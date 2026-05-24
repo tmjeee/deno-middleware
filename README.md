@@ -41,11 +41,12 @@ For Deno server running in Supabase Edge Functions only. Doesn't make sense to r
 ### Examples
 
 > [!NOTE]
-> 📢 For a complete practical example, see [examples/basic.ts](/examples/basic.ts) which demonstrates a typical real-world usage with CORS, HTTP method validation, and body validation.
+> 📢 For a complete practical example, see [examples/basic.ts](/examples/basic.ts) for `Deno.serve(...)` and [examples/basic-v2.ts](/examples/basic-v2.ts) for `export default { fetch: withSupabase(...) }` which demonstrates a typical real-world usage with CORS, HTTP method validation, and body validation.
 
 #### Simple usage
 
 ```typescript
+// NOTE: using old `Deno.serve(...)`
 import { applyMiddleware } from "@tmjeee/deno-middleware";
 
 Deno.serve(
@@ -58,9 +59,9 @@ Deno.serve(
   },
   applyMiddleware({
     middlewares: [
-      // custom middleware
+      // custom middlewares
       (req, ctx, next) => {
-        // do something with your middleware
+        // your middleware
         if (some_condition) {
           // custom response
           return new Response(...)          
@@ -70,6 +71,7 @@ Deno.serve(
       }
       // more middlewares ...
     ],
+    // your handler that handle the request after passing thorugh all middlewares
     handler: (req, ctx) => {
       return new Response(
         JSON.stringify({success: true, message: `Hello world`});
@@ -77,11 +79,75 @@ Deno.serve(
     }
   }),
 );
+
+// NOTE: using  new `export default { fetch: withSupabase(...) } `
+import { SupabaseContext, withSupabase } from "@supabase/server";
+import { applyMiddlewareWithSupabaseContext } from "@tmjeee/deno-middleware/v2";
+import { httpMethodWithSupabaseContextMiddlewareFn } from "@tmjeee/deno-middleware/v2";
+import { zodValidateBodyWithSupabaseContextMiddlewareFn, ZodValidateBodyWithSupabaseContextMiddlewareContext } from "@tmjeee/deno-middleware/v2"; 
+import z from 'zod';
+
+export default {
+  fetch: withSupabase(
+    {
+      auth: ['user'],
+    },
+    applyMiddlewareWithSupabaseContext({
+      middlewares: [
+        // custom middlewares
+        (req, ctx, next) => {
+          // your middleware 
+          if (some_condition) {
+            // custom resonse
+            return new Response(...)
+          }
+          // esle pass it to the next middleware
+          return next(req, ctx);
+        }
+        // more middlewares ...
+      ],
+      // your handler that handle the request after passing thorugh all middlewares
+      // deno-lint-ignore require-await
+      handler: async <T extends SupabaseContext<unknown>>(_req: Request, ctx: T) => {
+        // ZodValidateBodyWithSupabaseContextMiddlewareContext is injected by middleware function - zodValidateBodyWithSupabaseContextMiddlewareFn(...)
+        const {
+          success,
+          data,
+          error
+        } = (ctx as unknown as ZodValidateBodyWithSupabaseContextMiddlewareContext<z.infer<typeof bodySchema>>).validation;
+
+        if (success) { // pass validation
+          const name = data?.name ?? '';
+          const age = data?.age ?? 0;
+          return new Response(
+            JSON.stringify({ success: true, message: `Hello ${name}, you are ${age} years old` }),
+            {
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            }
+          );
+        } else {
+          const msg = error?.issues.map(issue => issue.message).join(', ') ?? `unknown error`;
+          return new Response(
+            JSON.stringify({ success: false, message: `error: ${msg}` }),
+            {
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            }
+          );
+        }
+      }
+    }),
+  )
+}
 ```
 
 #### Typical usage
 
 ```typescript
+// NOTE: using old `Deno.serve(...)`
 import { applyMiddleware } from "@tmjeee/deno-middleware";
 import { corsMiddlewareFn } from "@tmjeee/deno-middleware";
 import { httpMethodMiddlewareFn } from "@tmjeee/deno-middleware";
@@ -137,6 +203,70 @@ Deno.serve(
     },
   }),
 );
+
+// NOTE: using  new `export default { fetch: withSupabase(...) } `
+import { SupabaseContext, withSupabase } from "@supabase/server";
+import { applyMiddlewareWithSupabaseContext } from "@tmjeee/deno-middleware/v2";
+import { httpMethodWithSupabaseContextMiddlewareFn } from "@tmjeee/deno-middleware/v2";
+import {
+  ZodValidateBodyWithSupabaseContextMiddlewareContext,
+  zodValidateBodyWithSupabaseContextMiddlewareFn,
+} from "@tmjeee/deno-middleware/v2";
+import z from "zod";
+
+const bodySchema = z.object({
+  name: z.string(),
+  age: z.number(),
+});
+
+export default {
+  fetch: withSupabase(
+    {
+      auth: ["user"],
+    },
+    applyMiddlewareWithSupabaseContext({
+      middlewares: [
+        httpMethodWithSupabaseContextMiddlewareFn("POST"),
+        zodValidateBodyWithSupabaseContextMiddlewareFn(bodySchema),
+        // zodValidationProcessingWithSupabaseContextMiddlewareFn(bodySchema),
+      ],
+      // deno-lint-ignore require-await
+      handler: async <T extends SupabaseContext<unknown>>(_req: Request, ctx: T) => {
+        // ZodValidateBodyWithSupabaseContextMiddlewareContext is injected by middleware function - zodValidateBodyWithSupabaseContextMiddlewareFn(...)
+        const {
+          success,
+          data,
+          error,
+        } = (ctx as unknown as ZodValidateBodyWithSupabaseContextMiddlewareContext<
+          z.infer<typeof bodySchema>
+        >).validation;
+
+        if (success) { // pass validation
+          const name = data?.name ?? "";
+          const age = data?.age ?? 0;
+          return new Response(
+            JSON.stringify({ success: true, message: `Hello ${name}, you are ${age} years old` }),
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            },
+          );
+        } else {
+          const msg = error?.issues.map((issue) => issue.message).join(", ") ?? `unknown error`;
+          return new Response(
+            JSON.stringify({ success: false, message: `error: ${msg}` }),
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            },
+          );
+        }
+      },
+    }),
+  ),
+};
 ```
 
 #### Using Zod for body validation

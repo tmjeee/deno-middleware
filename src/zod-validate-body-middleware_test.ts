@@ -60,7 +60,19 @@ Deno.test("zodValidateBodyMiddlewareFn - rejects invalid body with wrong type", 
 
   const fn = applyMiddleware({
     middlewares: [zodValidateBodyMiddlewareFn<TestBody>(schema)],
-    handler: (_req, _ctx) => {
+    handler: (_req, ctx) => {
+      const { validation } = ctx as ZodValidateBodyMiddlewareContext<TestBody>;
+
+      if (!validation.success) {
+        return new Response(
+          JSON.stringify({ success: false, errors: validation.error.issues }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
       return new Response(JSON.stringify({ message: "Should not be called" }));
     },
   });
@@ -91,7 +103,19 @@ Deno.test("zodValidateBodyMiddlewareFn - rejects body with missing required fiel
 
   const fn = applyMiddleware({
     middlewares: [zodValidateBodyMiddlewareFn<TestBody>(schema)],
-    handler: (_req, _ctx) => {
+    handler: (_req, ctx) => {
+      const { validation } = ctx as ZodValidateBodyMiddlewareContext<TestBody>;
+
+      if (!validation.success) {
+        return new Response(
+          JSON.stringify({ success: false, errors: validation.error.issues }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
       return new Response(JSON.stringify({ message: "Should not be called" }));
     },
   });
@@ -244,7 +268,19 @@ Deno.test("zodValidateBodyMiddlewareFn - returns proper error response on invali
 
   const fn = applyMiddleware({
     middlewares: [zodValidateBodyMiddlewareFn<TestBody>(schema)],
-    handler: (_req, _ctx) => {
+    handler: (_req, ctx) => {
+      const { validation } = ctx as ZodValidateBodyMiddlewareContext<TestBody>;
+
+      if (!validation.success) {
+        return new Response(
+          JSON.stringify({ success: false, errors: validation.error.issues }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
       return new Response("Should not reach handler");
     },
   });

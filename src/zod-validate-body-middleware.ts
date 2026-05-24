@@ -18,7 +18,7 @@ export interface ZodValidateBodyMiddlewareContextSuccess<T> {
 /**
  * Context shape when Zod body validation fails.
  */
-export interface ZodValidateBodyMiddlewareContextFailure {
+export interface ZodValidateBodyMiddlewareContextFailure<T> {
   validation: {
     /** Discriminated flag indicating failed validation */
     success: false;
@@ -47,7 +47,7 @@ export interface ZodValidateBodyMiddlewareContextFailure {
  */
 export type ZodValidateBodyMiddlewareContext<T> =
   | ZodValidateBodyMiddlewareContextSuccess<T>
-  | ZodValidateBodyMiddlewareContextFailure;
+  | ZodValidateBodyMiddlewareContextFailure<T>;
 
 /**
  * Creates a middleware that validates the JSON request body against a Zod schema
@@ -106,15 +106,5 @@ export const zodValidateBodyMiddlewareFn: <T>(schema: ZodType<T>) => MiddlewareF
       error: result.error,
       input: body,
     };
-
-    return new Response(
-      JSON.stringify({
-        success: false,
-        errors: result.error.issues,
-      }),
-      {
-        headers: { "Content-Type": "application/json" },
-        status: 400,
-      },
-    );
+    return next(req, ctx);
   };

@@ -2,7 +2,8 @@
   "name": "@tmjeee/deno-middleware",
   "version": "0.1.2",
   "exports": {
-    ".": "./mod.ts"
+    ".": "./mod.ts",
+    "./v2": "./mod_v2.ts"
   },
   "publish": {
     "exclude": [
@@ -42,6 +43,8 @@
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@^1.0.0",
+    "@supabase/server": "npm:@supabase/server@^1.1.0",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@^2.106.1",
     "typebox": "npm:typebox@1.1.4",
     "typebox/schema": "npm:typebox@1.1.4/schema",
     "typebox/error": "npm:typebox@1.1.4/error",
