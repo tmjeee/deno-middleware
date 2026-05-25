@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### [0.2.0] - 2026-05-25
+
+- Introduced v2
+  - deno middleware and all its related utilities for use with `withSupabase(..)` from `@supabase/server` library
+  - updated docs to reflect this as well
+
 ### [0.1.2] - 2026-05-22
 
 - Added Zod based validation body middleware
