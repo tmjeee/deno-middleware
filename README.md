@@ -20,7 +20,7 @@ Middleware functions / utilities for use with Supabase Deno http server.
 
 ```typescript
 import { applyMiddleware } from "jsr:@tmjeee/deno-middleware";
-import { applyMiddlwareWithSupabaseContext } from "jsr:@tmjeee/deno-middleware/v2";
+import { applyMiddlewareWithSupabaseContext } from "jsr:@tmjeee/deno-middleware/v2";
 ```
 
 Or add to your `deno.json`:
