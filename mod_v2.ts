@@ -27,7 +27,7 @@
 export { CORS_HEADERS } from "./src/v2/const.ts";
 
 // Supabase utilities
-export { typedRpc } from "./src/v2/supabase-utils.ts";
+export { typedRpcMany, typedRpcSingle } from "./src/v2/supabase-utils.ts";
 
 // Core middleware system (Supabase context variants)
 export {

@@ -19,7 +19,7 @@
   "tasks": {
     "test": "deno test --allow-all",
     "test:watch": "deno test --allow-all --watch",
-    "check": "deno check mod.ts",
+    "check": "deno check mod.ts mod_v2.ts",
     "fmt": "deno fmt",
     "fmt:check": "deno fmt --check",
     "lint": "deno lint",

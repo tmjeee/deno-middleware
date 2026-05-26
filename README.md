@@ -20,6 +20,7 @@ Middleware functions / utilities for use with Supabase Deno http server.
 
 ```typescript
 import { applyMiddleware } from "jsr:@tmjeee/deno-middleware";
+import { applyMiddlwareWithSupabaseContext } from "jsr:@tmjeee/deno-middleware/v2";
 ```
 
 Or add to your `deno.json`:
@@ -27,7 +28,7 @@ Or add to your `deno.json`:
 ```json
 {
   "imports": {
-    "@tmjeee/deno-middleware": "jsr:@tmjeee/deno-middleware@^0.1.2"
+    "@tmjeee/deno-middleware": "jsr:@tmjeee/deno-middleware@^0.2.1"
   }
 }
 ```
@@ -401,12 +402,57 @@ const handlerWithContext: HandlerFn = (_req, ctx) => {
 
 ### Built-in `MiddlewareFn`s
 
+#### Old
+
 | Middleware                            | Description                                                         | Usage                                                               |
 | ------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | `corsMiddlewareFn()`                  | Handles CORS preflight requests and adds CORS headers               | `corsMiddlewareFn()`                                                |
 | `httpMethodMiddlewareFn(method)`      | Validates the HTTP method (GET or POST), returns 405 if not allowed | `httpMethodMiddlewareFn("POST")`                                    |
 | `validateBodyMiddlewareFn(schema)`    | Validates JSON body using a TypeBox schema                          | `validateBodyMiddlewareFn(Type.Object({ name: Type.String() }))`    |
 | `zodValidateBodyMiddlewareFn(schema)` | Validates JSON body using a Zod schema                              | `zodValidateBodyMiddlewareFn<Body>(z.object({ name: z.string() }))` |
+
+#### V2
+
+| Middleware                                                       | Description                                                                 | Usage                                                                 |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `applyMiddlewareWithSupabaseContext(...)`                        | Composes middlewares that integrate with Supabase's `SupabaseContext`       | `applyMiddlewareWithSupabaseContext({ middlewares: [...], handler })` |
+| `httpMethodWithSupabaseContextMiddlewareFn(method)`              | Validates the HTTP method (GET or POST), returns 405 if not allowed         | `httpMethodWithSupabaseContextMiddlewareFn("POST")`                   |
+| `zodValidateBodyWithSupabaseContextMiddlewareFn(schema)`         | Validates JSON body using a Zod schema (continues chain on failure)         | `zodValidateBodyWithSupabaseContextMiddlewareFn<Body>(schema)`        |
+| `zodValidationProcessingWithSupabaseContextMiddlewareFn(schema)` | Validates JSON body using a Zod schema (short-circuits with 400 on failure) | `zodValidationProcessingWithSupabaseContextMiddlewareFn(schema)`      |
+
+#### Utilities
+
+##### `typedRpcSingle`
+
+Performs a type-safe Supabase RPC call and expects a **single result or null**.
+
+- Returns the row directly if one row is found.
+- Returns `null` if **no rows** are found (does **not** throw).
+- Throws an error if more than one row is returned.
+
+This is the recommended helper when your RPC function may return zero or one result (uses `.maybeSingle()` internally).
+
+```ts
+// Inside a v2 handler / middleware
+const profile = await typedRpcSingle(ctx, "get_user_profile", {
+  user_id: ctx.user?.id,
+});
+```
+
+##### `typedRpcMany`
+
+Performs a type-safe Supabase RPC call and returns an **array of results** (can be empty).
+
+Use this when your RPC function can return zero or more rows.
+
+```ts
+// Inside a v2 handler / middleware
+const posts = await typedRpcMany(ctx, "get_user_posts", {
+  user_id: ctx.user?.id,
+});
+```
+
+See full details in [src/v2/supabase-utils.ts](src/v2/supabase-utils.ts).
 
 ## API Documentation
 

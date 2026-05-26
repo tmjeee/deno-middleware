@@ -9,9 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### [0.2.0] - 2026-05-25
 
-- Introduced v2
-  - deno middleware and all its related utilities for use with `withSupabase(..)` from `@supabase/server` library
-  - updated docs to reflect this as well
+#### Added
+
+- Full **v2** support for Supabase Edge Functions using `SupabaseContext` from `@supabase/server`
+  - `applyMiddlewareWithSupabaseContext`
+  - `httpMethodWithSupabaseContextMiddlewareFn`
+  - `zodValidateBodyWithSupabaseContextMiddlewareFn`
+  - `zodValidationProcessingWithSupabaseContextMiddlewareFn`
+- New Supabase utilities under `/v2`:
+  - `typedRpcSingle` – Type-safe RPC call expecting a single result (or null)
+  - `typedRpcMany` – Type-safe RPC call returning an array of results
+- New v2 context types:
+  - `ZodValidateBodyWithSupabaseContextMiddlewareContext`
+  - `ZodValidationProcessingWithSupabaseContextMiddlewareContext`
+- Added `examples/basic-v2.ts`
+- Comprehensive test coverage for all v2 modules
+
+#### Changed
+
+- Restructured exports to support subpath `./v2`
+- Improved documentation for v2 usage patterns
+- Updated README with dedicated V2 middleware table and Utilities section
+
+#### Internal
+
+- Refactored several v2 modules for better type safety and consistency with `SupabaseContext`
 
 ### [0.1.2] - 2026-05-22
 
