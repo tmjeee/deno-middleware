@@ -45,7 +45,13 @@ export {
   zodValidateBodyWithSupabaseContextMiddlewareFn,
 } from "./src/v2/zod-validate-body-with-supabase-context-middleware.ts";
 
+// Zod validation processing (supabase context variants)
 export {
   type ZodValidationProcessingWithSupabaseContextMiddlewareContext,
   zodValidationProcessingWithSupabaseContextMiddlewareFn,
 } from "./src/v2/zod-validation-processing-with-supabase-context-middleware.ts";
+
+// catch error (supabase context variant)
+export {
+  catchErrorWithSupabaseContextMiddlwareFn
+} from './src/v2/catch-error-with-supabase-context-middleware.ts';
