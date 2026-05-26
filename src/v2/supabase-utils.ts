@@ -1,5 +1,5 @@
 import type { SupabaseContext } from "@supabase/server";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 
 /* ========================================================================== */
 /*                              Internal Helpers                              */
@@ -104,4 +104,24 @@ export async function typedRpcMany<
   }
 
   return (data as Return[]) ?? [];
+}
+
+
+
+/* ========================================================================== */
+/*                                utilities                                   */
+/* ========================================================================== */
+
+export const isPostgrestError = (err: unknown): err is PostgrestError => {
+  if (err instanceof PostgrestError) {
+    return true;
+  }
+  if (!err || typeof err !== 'object') {
+    return false;
+  }
+  // deno-lint-ignore no-explicit-any
+  if ((err as any).name == 'PostgrestError') {
+    return true;
+  }
+  return false;
 }
