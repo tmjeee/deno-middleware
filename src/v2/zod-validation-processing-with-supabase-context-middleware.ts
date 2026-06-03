@@ -37,11 +37,12 @@ export const zodValidationProcessingWithSupabaseContextMiddlewareFn: <T>(
         z.infer<typeof schema>
       >)
         .validation = {
-          data: result.data,
-        };
+        data: result.data,
+      };
       return next(req, ctx);
     }
 
+    console.log(`[ERROR] @tmjeee/deno-middeware zodValidationProcessingWithSupabaseContextMiddlwareFn() `, result.error);
     return new Response(
       JSON.stringify({
         errors: result.error.issues.map((i) => i.message).join(", "),

@@ -41,18 +41,19 @@ export const zodValidateBodyWithSupabaseContextMiddlewareFn: <T>(
         z.infer<typeof schema>
       >)
         .validation = {
-          success: true,
-          data: result.data,
-        };
+        success: true,
+        data: result.data,
+      };
       return next(req, ctx);
     }
 
+    console.log(`[ERROR] @tmjeee/deno-middleware zodValidateBodyWithSupabaseContextMiddlwareFn() `, result.error);
     (ctx as unknown as ZodValidateBodyWithSupabaseContextMiddlewareContext<z.infer<typeof schema>>)
       .validation = {
-        success: false,
-        error: result.error,
-        input: body,
-      };
+      success: false,
+      error: result.error,
+      input: body,
+    };
 
     return next(req, ctx);
   };

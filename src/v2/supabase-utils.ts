@@ -59,6 +59,7 @@ export async function typedRpcSingle<
     .overrideTypes<Return>();
 
   if (error) {
+    console.log(`[ERROR] @tmjeee/deno-middleware - typedRpcSingle `, error);
     throw error;
   }
 
@@ -100,6 +101,7 @@ export async function typedRpcMany<
     .overrideTypes<Return[]>();
 
   if (error) {
+    console.log(`[ERROR] @tmjeee/deno-middleware - typedRpcMany `, error)
     throw error;
   }
 
