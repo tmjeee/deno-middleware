@@ -1,6 +1,6 @@
 {
   "name": "@tmjeee/deno-middleware",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "exports": {
     ".": "./mod.ts",
     "./v2": "./mod_v2.ts"
