@@ -2,7 +2,7 @@ import { CORS_HEADERS } from "./const.ts";
 import { MiddlewareWithSupabaseContextFn } from "./middleware-with-supabase-context.ts";
 import { isPostgrestError } from "./supabase-utils.ts";
 
-export const catchErrorWithSupabaseContextMiddlwareFn: () => MiddlewareWithSupabaseContextFn =
+export const catchErrorWithSupabaseContextMiddlewareFn: () => MiddlewareWithSupabaseContextFn =
   () => {
     // deno-lint-ignore require-await
     return async (req, ctx, next) => {

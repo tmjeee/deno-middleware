@@ -53,5 +53,5 @@ export {
 
 // catch error (supabase context variant)
 export {
-  catchErrorWithSupabaseContextMiddlwareFn
+  catchErrorWithSupabaseContextMiddlewareFn
 } from './src/v2/catch-error-with-supabase-context-middleware.ts';
